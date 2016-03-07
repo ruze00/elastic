@@ -1,12 +1,61 @@
-language: c
-script: "./travis-tool.sh run_tests"
-before_script:
-- curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-- chmod 755 ./travis-tool.sh
-- "./travis-tool.sh bootstrap"
-- "./travis-tool.sh install_deps"
-- "./travis-tool.sh github_package assertthat"
+language: r
+
+env:
+  matrix:
+  - ES_VERSION=1.0.0
+  - ES_VERSION=1.4.0
+  - ES_VERSION=1.7.2
+  - ES_VERSION=2.0.0
+  - ES_VERSION=2.1.0
+  - ES_VERSION=2.2.0
+
+before_install:
+  - case "$ES_VERSION" in
+    "") ;;
+
+    "1.0.0")
+      export ES_VERSION=1.0.0 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+
+    "1.4.0")
+      export ES_VERSION=1.4.0 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+
+    "1.7.2")
+      export ES_VERSION=1.7.2 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+
+    "2.0.0")
+      export ES_VERSION=2.0.0 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ES_VERSION/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+
+    "2.1.0")
+      export ES_VERSION=2.1.0 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ES_VERSION/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+      
+    "2.2.0")
+      export ES_VERSION=2.2.0 ;
+      curl -O https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/$ES_VERSION/elasticsearch-$ES_VERSION.deb && sudo dpkg -i --force-confnew elasticsearch-$ES_VERSION.deb && sudo service elasticsearch start
+      ;;
+   esac
+
+  - sleep 3
+  - sudo service elasticsearch status
+
+r_packages:
+- covr
+
+after_success:
+- Rscript -e 'covr::codecov()'
+
 notifications:
-  hipchat:
-    rooms:
-      secure: R2fWgrfi0C0RO/2768rjNY6jFfwqTO/9SEA8+chynmjWZWcF+zOc1wD5ghpwoGumMVWQBv0yDt3UgRG0HfA7PfWH9KmzjU48JmP2qUDS6/YKPpkVclXxknxuPNc7dJV5RI8mdDkavUp/qR0JX9n7rSF/sTjahppdmmDF0AX8Mho=
+  email:
+    on_success: change
+    on_failure: change
+  slack:
+    secure: Mv3lFHkQvaPt1GAkAtdIsEvW9c0gSHhgLE5rx4u3Ex1gZYdCOFciimT8RcrqUi9EUMZ2xaqPPQYW189PGZFnjvjmuCfOUsXRxMvvZytjcjSagEuNKrRGKLBBXd4pSDqVtZTgTihkOyxfHSWGG7kGvZhan8sCmKNnun7d0BjmmgQ=
